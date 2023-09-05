@@ -1,0 +1,40 @@
+function doGet() {
+  let html = HtmlService.createTemplateFromFile("index")
+  return html.evaluate()
+}
+
+// function readAllSheet() {
+//   var fileSheet = SpreadsheetApp.openById("11_KD2pvkydgdmWuFGqfoWDuNALomhhVzdtqv_Gnqsfs")
+//   var sheet = fileSheet.getSheetByName("กอว.วันเกิดพี่เยจุน")
+//   var header = sheet.getRange("B1:K1")
+//   var dataRange = sheet.getDataRange()
+//   var value = dataRange.getValues()
+//   return value
+// }
+
+// function tableCreate() {
+//   let tableHtml = HtmlService.createHtmlOutputFromFile("table")
+//   return tableHtml
+// }
+
+function searchSheet(acc) {
+  let fileSheet = SpreadsheetApp.openById("11_KD2pvkydgdmWuFGqfoWDuNALomhhVzdtqv_Gnqsfs")
+  let sheet = fileSheet.getSheetByName("กอว.วันเกิดพี่เยจุน")
+  let indexColumn = 1
+  // let searchText = "@S14_2805PV"
+  let searchText = acc
+  let searchResult = sheet.getRange(2, indexColumn, sheet.getLastRow()).createTextFinder(searchText).findAll()
+  let stringResult = ""
+  searchResult.forEach((value, index) => {
+    let range = searchResult[index];
+    // let rangeValue = range.getValue();
+    let rowValue = sheet.getRange(range.getRow(), 1, 1, sheet.getLastColumn()).getValues();
+    let data = rowValue[0][0] + "-" + rowValue[0][1]
+    stringResult += data
+    if(index != searchResult.length-1) {
+      stringResult += ","
+    }
+  });
+  // Logger.log(stringResult)
+  return stringResult
+}
