@@ -1,0 +1,167 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>TorasubieTracking</title>
+    <meta name="google-site-verification" content="EtHhJ-cbahTiRXxKc5kU7IpH4kpQU0LxYqaM01VxUrw" />
+    <base target="_top">
+    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta17/dist/js/tabler.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta17/dist/css/tabler.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mali">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <style>
+      body {
+        font-family: 'Mali';
+      }
+
+      .spinner-border {
+        animation-duration: 0.5s;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-3"></div>
+
+        <div class="col-6">
+          <div class="card" style="margin-bottom: 25px;">
+            <center style="margin-bottom: 25px;"><h1>ค้นหาเลข Tracking (Flash Express)</h1></center>
+
+            <div class="row">
+              <div class="col align-self-center">
+                
+                <div class="row g-2" style="margin: 0px 10px 15px 10px;">
+                  <div class="col">
+                    <input type="text" id="accountName" class="form-control form-control-rounded" placeholder="ชื่อ account twitter ไม่ต้องใส่ @ เช่น Torasubie">
+                  </div>
+                  <div class="col-auto">
+                    <button class="btn btn-icon btn-primary w-100" aria-label="Button" id="searchAccountName" onclick="searchAccountName()" disabled>
+                      <!-- Download SVG icon from http://tabler-icons.io/i/search -->
+                      <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+          <!-- table -->
+          <div id="table"></div>
+        </div>
+
+        <div class="col-3"></div>
+      </div>
+    </div>
+  </body>
+  
+</html>
+
+<script>
+  $("#accountName").keyup(event => {
+    if($("#accountName").val() != "") {
+      $("#searchAccountName").prop('disabled', false);
+      if (event.which === 13) {
+        event.preventDefault()
+        searchAccountName()
+      }
+    } else {
+      $("#searchAccountName").prop('disabled', true);
+    }
+  });
+
+  function copyTracking(trackingNumber, idButton) {
+    // Copy the text inside the text field
+    navigator.clipboard.writeText(trackingNumber);
+    $("#"+idButton).html('<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-check" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M5 12l5 5l10 -10"></path></svg>');
+    setTimeout(() => {
+      toSameStateCopyIcon(idButton)
+    }, 1500);
+  }
+
+  function toSameStateCopyIcon(idButton) {
+      $("#"+idButton).html('<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copy" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M8 8m0 2a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2z"></path><path d="M16 8v-2a2 2 0 0 0 -2 -2h-8a2 2 0 0 0 -2 2v8a2 2 0 0 0 2 2h2"></path></svg>');
+  }
+
+  function searchAccountName() {
+    if($("#accountName").val() != "") {
+      $('#table').empty()
+      let htmlLoader = '<div class="spinner-border text-dark" role="status"><span class="sr-only"></span></div>'
+      $("#table").append(htmlLoader)
+      let searchText = "@" + $("#accountName").val()
+      var searchResult = ""
+      google.script.run.withFailureHandler(function(err){
+        console.error("error occured", e)
+      }).withSuccessHandler(function(res){
+        console.log("found!")
+        searchResult = res     
+        // console.log(searchResult) 
+      }).searchSheet(searchText)
+
+        let html = ""
+        setTimeout(() => {
+          $('#table').empty()
+          if(searchResult != "")
+          {
+            html += '<div class="card">'
+            html += '<div class="table-responsive">'
+            html += '<table class="table table-vcenter card-table">'
+            html += '<thead>'
+            html += '<tr>'
+            html += '<th>Twitter Account</th>'
+            html += '<th>Tracking</th>'
+            html += '<th class="w-1"></th>'
+            html += '</tr>'
+            html += '</thead>'
+            html += '<tbody>'
+
+            // console.log(searchResult.includes(","))
+            if(searchResult.includes(",")) {
+              let arrayData = searchResult.split(",")
+              arrayData.forEach((value, index) => {
+                // value.substr(0, value.indexOf("-"))
+                let account = value.substr(0, value.indexOf("-"))
+                let trackingNumber = value.substr(value.indexOf("-")+1)
+                let trackingNumberFunction = "'" + trackingNumber + "'"
+                let idButton = "'copy-" + index + "'"
+                html += '<tr>'
+                html += '<td>'
+                html += account
+                html += '</td>'
+                html += '<td>'
+                html += trackingNumber
+                html += '</td>'
+                html += '<td><button class="btn btn-icon btn-outline-primary w-100" aria-label="Button" id="copy-'+ index +'" onclick="copyTracking(' + trackingNumberFunction + ',' + idButton + ')"><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copy" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M8 8m0 2a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2z"></path><path d="M16 8v-2a2 2 0 0 0 -2 -2h-8a2 2 0 0 0 -2 2v8a2 2 0 0 0 2 2h2"></path></svg></button></td>'
+                html += '</tr>'
+              });
+            } else {
+              let account = searchResult.substr(0, searchResult.indexOf("-"))
+              let trackingNumber = searchResult.substr(searchResult.indexOf("-")+1)
+              let trackingNumberFunction = "'" + trackingNumber + "'"
+              let idButton = "'copy-single'"
+              html += '<tr>'
+              html += '<td>'
+              html += account
+              html += '</td>'
+              html += '<td>'
+              html += trackingNumber
+              html += '</td>'
+              html += '<td><button class="btn btn-icon btn-outline-primary w-100" aria-label="Button" id="copy-single" onclick="copyTracking(' + trackingNumberFunction + ',' + idButton + ')"><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copy" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M8 8m0 2a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2z"></path><path d="M16 8v-2a2 2 0 0 0 -2 -2h-8a2 2 0 0 0 -2 2v8a2 2 0 0 0 2 2h2"></path></svg></button></td>'
+              html += '</tr>'
+            }
+
+            html += '</tbody>'
+            html += '</table>'
+          
+            html += '</div>'
+          } else {
+            html += '<b>ไม่พบข้อมูล</b>'
+          }
+          $("#table").append(html)
+        }, 2200);
+
+    }
+  }
+
+</script>
