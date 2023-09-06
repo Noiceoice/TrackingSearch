@@ -3,7 +3,6 @@
 <html>
   <head>
     <title>TorasubieTracking</title>
-    <meta name="google-site-verification" content="EtHhJ-cbahTiRXxKc5kU7IpH4kpQU0LxYqaM01VxUrw" />
     <base target="_top">
     <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta17/dist/js/tabler.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta17/dist/css/tabler.min.css">
@@ -94,18 +93,17 @@
       let htmlLoader = '<div class="spinner-border text-dark" role="status"><span class="sr-only"></span></div>'
       $("#table").append(htmlLoader)
       let searchText = "@" + $("#accountName").val()
-      var searchResult = ""
+      let searchResult = ""
+      let html = ""
       google.script.run.withFailureHandler(function(err){
         console.error("error occured", e)
+        $('#table').empty()
+        html += '<b>พบข้อผิดพลาด โปรดลองใหม่อีกครั้ง</b>'
+        $("#table").append(html)
       }).withSuccessHandler(function(res){
-        console.log("found!")
-        searchResult = res     
-        // console.log(searchResult) 
-      }).searchSheet(searchText)
-
-        let html = ""
-        setTimeout(() => {
-          $('#table').empty()
+        console.log("success!")
+        searchResult = res
+        $('#table').empty()
           if(searchResult.length != 0)
           {
             html += '<div class="card">'
@@ -143,9 +141,8 @@
           } else {
             html += '<b>ไม่พบข้อมูล</b>'
           }
-          $("#table").append(html)
-        }, 2200);
-
+          $("#table").append(html)  
+      }).searchSheet(searchText)
     }
   }
 
