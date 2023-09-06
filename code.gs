@@ -3,20 +3,6 @@ function doGet() {
   return html.evaluate()
 }
 
-// function readAllSheet() {
-//   var fileSheet = SpreadsheetApp.openById("11_KD2pvkydgdmWuFGqfoWDuNALomhhVzdtqv_Gnqsfs")
-//   var sheet = fileSheet.getSheetByName("กอว.วันเกิดพี่เยจุน")
-//   var header = sheet.getRange("B1:K1")
-//   var dataRange = sheet.getDataRange()
-//   var value = dataRange.getValues()
-//   return value
-// }
-
-// function tableCreate() {
-//   let tableHtml = HtmlService.createHtmlOutputFromFile("table")
-//   return tableHtml
-// }
-
 function searchSheet(acc) {
   let fileSheet = SpreadsheetApp.openById("11_KD2pvkydgdmWuFGqfoWDuNALomhhVzdtqv_Gnqsfs")
   let sheet = fileSheet.getSheetByName("กอว.วันเกิดพี่เยจุน")
@@ -24,17 +10,14 @@ function searchSheet(acc) {
   // let searchText = "@S14_2805PV"
   let searchText = acc
   let searchResult = sheet.getRange(2, indexColumn, sheet.getLastRow()).createTextFinder(searchText).findAll()
-  let stringResult = ""
+  let arrayResult = []
   searchResult.forEach((value, index) => {
     let range = searchResult[index];
     // let rangeValue = range.getValue();
     let rowValue = sheet.getRange(range.getRow(), 1, 1, sheet.getLastColumn()).getValues();
-    let data = rowValue[0][0] + "-" + rowValue[0][1]
-    stringResult += data
-    if(index != searchResult.length-1) {
-      stringResult += ","
-    }
+    let objectResult = {"account":rowValue[0][0], "trackingNum":rowValue[0][1]}
+    arrayResult.push(objectResult)
   });
-  // Logger.log(stringResult)
-  return stringResult
+  // Logger.log(arrayResult)
+  return arrayResult
 }
