@@ -7,7 +7,6 @@ function searchSheet(acc) {
   let fileSheet = SpreadsheetApp.openById("11_KD2pvkydgdmWuFGqfoWDuNALomhhVzdtqv_Gnqsfs")
   let sheet = fileSheet.getSheetByName("กอว.วันเกิดพี่เยจุน")
   let indexColumn = 1
-  // let searchText = "@S14_2805PV"
   let searchText = acc
   let searchResult = sheet.getRange(2, indexColumn, sheet.getLastRow()).createTextFinder(searchText).findAll()
   let arrayResult = []
