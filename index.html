@@ -4,9 +4,12 @@
   <head>
     <title>TorasubieTracking</title>
     <base target="_top">
+    <!-- tabler template -->
     <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta17/dist/js/tabler.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta17/dist/css/tabler.min.css">
+    <!-- fonts api -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mali">
+    <!-- jquery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
     <style>
       body {
@@ -96,7 +99,7 @@
       let searchResult = ""
       let html = ""
       google.script.run.withFailureHandler(function(err){
-        console.error("error occured", e)
+        console.error("error occured", err)
         $('#table').empty()
         html += '<b>พบข้อผิดพลาด โปรดลองใหม่อีกครั้ง</b>'
         $("#table").append(html)
