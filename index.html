@@ -65,6 +65,10 @@
 </html>
 
 <script>
+  var searchResult = []
+  var checkAccount = []
+  var html = ''
+
   $("#accountName").keyup(event => {
     if($("#accountName").val() != "") {
       $("#searchAccountName").prop('disabled', false);
@@ -77,6 +81,54 @@
     }
   });
 
+  function drawLoader() {
+    $('#table').empty()
+    let htmlLoader = '<div class="spinner-border text-dark" role="status"><span class="sr-only"></span></div>'
+    $("#table").append(htmlLoader)
+  }
+
+  function drawTable() {
+    $('#table').empty()
+    html = ''
+    if(searchResult.length != 0) {
+      html += '<div class="card">'
+      html += '<div class="table-responsive">'
+      html += '<table class="table table-vcenter card-table">'
+      html += '<thead>'
+      html += '<tr>'
+      html += '<th>Twitter Account</th>'
+      html += '<th>Tracking</th>'
+      html += '<th class="w-auto"></th>'
+      html += '</tr>'
+      html += '</thead>'
+      html += '<tbody>'
+
+      searchResult.forEach((value, index) => {
+        let trackingNumberFunction = "'" + value.trackingNum + "'"
+        let idButton = "'copy-" + index + "'"
+        html += '<tr>'
+        html += '<td>'
+        html += value.account
+        html += '</td>'
+        html += '<td>'
+        html += '<a href="https://www.flashexpress.co.th/fle/tracking?se=' + value.trackingNum + '" target="_blank">' + value.trackingNum + '</a>'
+        html += '</td>'
+        html += '<td class="text-center">'
+        html += '<button class="btn btn-icon btn-outline-primary mr-gap" aria-label="Button" id="copy-'+ index +'" onclick="copyTracking(' + trackingNumberFunction + ',' + idButton + ')"><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copy" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M8 8m0 2a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-8a2 2 0 0 1 -2 -2z"></path><path d="M16 8v-2a2 2 0 0 0 -2 -2h-8a2 2 0 0 0 -2 2v8a2 2 0 0 0 2 2h2"></path></svg></button>'
+        html += '<a href="https://www.flashexpress.co.th/fle/tracking?se=' + value.trackingNum + '" target="_blank" class="btn btn-icon btn-outline-dark mr-gap"><svg xmlns="http://wwww3.org/2000/svg" class="icon icon-tabler icon-tabler-external-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"></path><path d="M11 13l9 -9"></path><path d="M15 4h5v5"></path></svg></a>'
+        html += '</td>'
+        html += '</tr>'
+      });
+
+      html += '</tbody>'
+      html += '</table>'
+      html += '</div>'
+    } else {
+      html += '<b>ไม่พบข้อมูล</b>'
+    }
+    $("#table").append(html) 
+  }
+
   function copyTracking(trackingNumber, idButton) {
     // Copy the text inside the text field
     navigator.clipboard.writeText(trackingNumber);
@@ -87,64 +139,29 @@
   }
 
   function toSameStateCopyIcon(idButton) {
-      $("#"+idButton).html('<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copy" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M8 8m0 2a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2z"></path><path d="M16 8v-2a2 2 0 0 0 -2 -2h-8a2 2 0 0 0 -2 2v8a2 2 0 0 0 2 2h2"></path></svg>');
+    $("#"+idButton).html('<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copy" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M8 8m0 2a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2z"></path><path d="M16 8v-2a2 2 0 0 0 -2 -2h-8a2 2 0 0 0 -2 2v8a2 2 0 0 0 2 2h2"></path></svg>');
   }
 
   function searchAccountName() {
     if($("#accountName").val() != "") {
-      $('#table').empty()
-      let htmlLoader = '<div class="spinner-border text-dark" role="status"><span class="sr-only"></span></div>'
-      $("#table").append(htmlLoader)
-      let searchText = "@" + $("#accountName").val()
-      let searchResult = ""
-      let html = ""
+      drawLoader()
+      let searchText = '@' + $("#accountName").val()
+      searchResult = []
+      checkAccount = []
       google.script.run.withFailureHandler(function(err){
         console.error("error occured", err)
         $('#table').empty()
         html += '<b>พบข้อผิดพลาด โปรดลองใหม่อีกครั้ง</b>'
         $("#table").append(html)
-      }).withSuccessHandler(function(res){
+      }).withSuccessHandler(async function(res){
         console.log("success!")
-        searchResult = res
-        $('#table').empty()
-          if(searchResult.length != 0)
-          {
-            html += '<div class="card">'
-            html += '<div class="table-responsive">'
-            html += '<table class="table table-vcenter card-table">'
-            html += '<thead>'
-            html += '<tr>'
-            html += '<th>Twitter Account</th>'
-            html += '<th>Tracking</th>'
-            html += '<th class="w-auto"></th>'
-            html += '</tr>'
-            html += '</thead>'
-            html += '<tbody>'
-
-            searchResult.forEach((value, index) => {
-              let trackingNumberFunction = "'" + value.trackingNum + "'"
-              let idButton = "'copy-" + index + "'"
-              html += '<tr>'
-              html += '<td>'
-              html += value.account
-              html += '</td>'
-              html += '<td>'
-              html += value.trackingNum
-              html += '</td>'
-              html += '<td class="text-center">'
-              html += '<button class="btn btn-icon btn-outline-primary mr-gap" aria-label="Button" id="copy-'+ index +'" onclick="copyTracking(' + trackingNumberFunction + ',' + idButton + ')"><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copy" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M8 8m0 2a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-8a2 2 0 0 1 -2 -2z"></path><path d="M16 8v-2a2 2 0 0 0 -2 -2h-8a2 2 0 0 0 -2 2v8a2 2 0 0 0 2 2h2"></path></svg></button>'
-              html += '<a href="https://www.flashexpress.co.th/fle/tracking?se=' + value.trackingNum + '" target="_blank" class="btn btn-icon btn-outline-dark mr-gap"><svg xmlns="http://wwww3.org/2000/svg" class="icon icon-tabler icon-tabler-external-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"></path><path d="M11 13l9 -9"></path><path d="M15 4h5v5"></path></svg></a>'
-              html += '</td>'
-              html += '</tr>'
-            });
-
-            html += '</tbody>'
-            html += '</table>'
-            html += '</div>'
-          } else {
-            html += '<b>ไม่พบข้อมูล</b>'
+        checkAccount = res
+        await checkAccount.forEach((value, index) => {
+          if(value.account == searchText) {
+            searchResult.push(value)
           }
-          $("#table").append(html)  
+        })
+        drawTable()
       }).searchSheet(searchText)
     }
   }
