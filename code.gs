@@ -16,7 +16,7 @@ function searchSheet(acc) {
     let rowValue = sheet.getRange(range.getRow(), 1, 1, sheet.getLastColumn()).getValues();
     let objectResult = {"account":rowValue[0][0], "trackingNum":rowValue[0][1]}
     arrayResult.push(objectResult)
-  });
+  })
   // Logger.log(arrayResult)
   return arrayResult
 }
